@@ -1,0 +1,31 @@
+<script>
+
+var registration;
+navigator.serviceWorker.getRegistration("./")
+  .then(r => {
+    if (!r) {
+      return navigator.serviceWorker.register("./payment_app.js");
+    }
+    console.log("There was already service worker!");
+    return r;
+  })
+  .then(r => {
+    registration = r;
+    return new Promise((resolve, reject) => {
+      if (registration.installing == null) resolve("activated");
+      registration.active.addEventListener('statechange', () => {
+        console.log(registration.installing.state);
+        if (registration.installing.state === "activated") {
+          resolve("activated");
+        }
+      });
+    });
+  })
+  .then(() => {
+    return registration.paymentManager.requestPermission();
+  })
+  .then(permission => {
+    console.log(permission);
+  });
+
+</script>
